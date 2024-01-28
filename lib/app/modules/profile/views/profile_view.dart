@@ -1,4 +1,6 @@
+import 'package:e_tol/app/routes/app_pages.dart';
 import 'package:e_tol/bottom_navbar.dart';
+import 'package:e_tol/my_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -11,10 +13,17 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavbar(controller: controller),
-      body: const Center(
-        child: Text(
-          'ProfileView is working',
-          style: TextStyle(fontSize: 20),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            box.erase();
+            Get.offAllNamed(Routes.LOGIN);
+          },
+          child: Text("Logout"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+          ),
         ),
       ),
     );
