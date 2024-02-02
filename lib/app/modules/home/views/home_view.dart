@@ -2,6 +2,7 @@ import 'package:e_tol/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../controllers/home_controller.dart';
 
@@ -38,12 +39,14 @@ class HomeView extends GetView<HomeController> {
                     ),
                     SizedBox(height: 20),
                     Center(
-                      child: Text(
-                        "Rp 2000,000",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
+                      child: Obx(
+                        () => Text(
+                          "${controller.balance.value}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -74,12 +77,14 @@ class HomeView extends GetView<HomeController> {
                     ),
                     SizedBox(height: 20),
                     Center(
-                      child: Text(
-                        "2 Unit",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
+                      child: Obx(
+                        () => Text(
+                          "${controller.vehicle.value}",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -101,7 +106,46 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => SimpleDialog(
+                            title: const Text("Topup"),
+                            contentPadding: EdgeInsets.all(20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            children: [
+                              Column(
+                                children: [
+                                  TextFormField(
+                                    controller: controller.total,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      label: Text("Jumlah Topup"),
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(width: 1),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      controller.topup();
+                                      Get.back();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: Text("Topup Sekarang"),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                       child: Text("Topup"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber,
@@ -110,22 +154,35 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ],
                 )),
-            Expanded(
-              child: ListView.separated(
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title:
-                          Text("${controller.topupHistories[index]['inv_no']}"),
-                      subtitle:
-                          Text("${controller.topupHistories[index]['total']}"),
-                      trailing:
-                          Text("${controller.topupHistories[index]['status']}"),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider();
-                  },
-                  itemCount: controller.topupHistories.length),
+            Obx(
+              () => Expanded(
+                child: SmartRefresher(
+                  controller: controller.refreshController,
+                  enablePullDown: false,
+                  enablePullUp: (controller.nextData.value > 0) ? true : false,
+                  onLoading: () => controller.onLoading(),
+                  child: ListView.separated(
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          onTap: () {
+                            controller.payment(controller.topupHistories[index]
+                                ['payment_token']);
+                            Get.back();
+                          },
+                          title: Text(
+                              "${controller.topupHistories[index]['inv_no']}"),
+                          subtitle: Text(
+                              "${controller.topupHistories[index]['total']}"),
+                          trailing: Text(
+                              "${controller.topupHistories[index]['status']}"),
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider();
+                      },
+                      itemCount: controller.topupHistories.length),
+                ),
+              ),
             )
           ],
         ),

@@ -16,7 +16,7 @@ class VehicleView extends GetView<VehicleController> {
         child: Expanded(
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 400,
+              maxCrossAxisExtent: 200,
               childAspectRatio: .8,
               crossAxisSpacing: 20,
               mainAxisSpacing: 20,
